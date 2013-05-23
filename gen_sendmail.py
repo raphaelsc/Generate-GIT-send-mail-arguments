@@ -19,6 +19,7 @@ import getopt
 # Default definitions
 GIT_SENDMAIL = "git send-email"
 SCRIPT = "scripts/get_maintainer.pl"
+CHECK = "scripts/checkpatch.pl"
 
 
 def get_user_gitconfig(git_config):
@@ -39,6 +40,11 @@ def get_user_gitconfig(git_config):
 
 	return (0, None)
 
+# Try to execute: checkpatch.pl <patch>
+def exec_checkpatch(patch_name):
+	command = CHECK + ' ' + patch_name
+	(stat, output) = commands.getstatusoutput(command)
+	return (stat, output)
 
 # Try to execute: get_maintainer.pl <patch>
 def exec_get_maintainers(patch_name):
@@ -143,6 +149,11 @@ def main(argc, argv):
 	args = argv[arg_count:]
 	# Get output regarding to the each patch file!
 	for arg in args:
+		(stat, output) = exec_checkpatch(arg)
+		if (stat != 0):
+			print '%s: %s failed! Please, check the patch: %s.'  \
+				% (argv[0], CHECK, arg)
+			sys.exit(2)
 		(stat, output) = exec_get_maintainers(arg)
 		if (stat != 0):
 			print '%s: %s failed! Please, check the patch: %s,'  \
