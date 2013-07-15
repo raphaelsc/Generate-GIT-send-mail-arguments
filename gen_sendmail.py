@@ -40,18 +40,11 @@ def get_user_gitconfig(git_config):
 
 	return (0, None)
 
-# Try to execute: checkpatch.pl <patch>
-def exec_checkpatch(patch_name):
-	command = CHECK + ' ' + patch_name
+# Execute script: <script path> <patch>
+def exec_script(script_path, patch_name):
+	command = script_path + ' ' + patch_name
 	(stat, output) = commands.getstatusoutput(command)
 	return (stat, output)
-
-# Try to execute: get_maintainer.pl <patch>
-def exec_get_maintainers(patch_name):
-	command = SCRIPT + ' ' + patch_name
-	(stat, output) = commands.getstatusoutput(command)
-	return (stat, output)
-
 
 def find_maintainer(maintainers, email):
 	for m in maintainers:
@@ -149,12 +142,12 @@ def main(argc, argv):
 	args = argv[arg_count:]
 	# Get output regarding to the each patch file!
 	for arg in args:
-		(stat, output) = exec_checkpatch(arg)
+		(stat, output) = exec_script(CHECK, arg)
 		if (stat != 0):
 			print '%s: %s failed! Please, check the patch: %s.'  \
 				% (argv[0], CHECK, arg)
 			sys.exit(2)
-		(stat, output) = exec_get_maintainers(arg)
+		(stat, output) = exec_script(SCRIPT, arg)
 		if (stat != 0):
 			print '%s: %s failed! Please, check the patch: %s,'  \
 				' and make sure you "installed" this script' \
